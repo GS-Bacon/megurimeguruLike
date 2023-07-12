@@ -11,51 +11,54 @@ namespace CreateMap
     {
         public void CreateImage()
         {
-            int imagex = 10000;
-            int imagey = 10000;
+            int imagex = 1000;
+            int imagey = 1000;
             //画像を生成
             var image = new Image<Rgba32>(imagex, imagey);
 
+            float deep 
             Pconcat();
 
             //https://zenn.dev/baroqueengine/books/a19140f2d9fc1a/viewer/95c334
 
-            double Persistence = 1;
+            double Persistence = 8;
 
-            int Octaves = 10;
+            int Octaves = 2;
 
             for (int y = 0; y < image.Width; y++)
             {
                 for (int x = 0; x < image.Height; x++)
                 {
-                    float a = (float)OctavesNoise((float)x/100, (float)y/100, 0, Octaves, Persistence);
-                    //image[x, y] = new Rgba32(0, 0, a);
+                    float a = (float)OctavesNoise((float)x / 100, (float)y / 100, 0, Octaves, Persistence);
+                    a += 2*(float)OctavesNoise((float)x / 100, (float)y / 100, 0, Octaves, 1/Persistence);
+                    a = a / 2;
+                    image[x, y] = new Rgba32(0, 0, a);
                     //ノイズの濃淡によって色塗り
                     switch (a)
-                        {
-                            case float i when a > 0.7:
-                                image[x, y] = new Rgba32(0, 70, 100);
-                                break;
-                            case float i when a > 0.5 && a <= 0.7:
-                                image[x, y] = new Rgba32(0, 100, 150);
-                                break;
-                            case float i when a > 0.45 && a <= 0.5:
-                                image[x, y] = new Rgba32(225, 225, 175);
-                                break;
-                            default:
-                                image[x, y] = new Rgba32(60, 160, 100);
-                                break;
-                        }
+                    {
+                        case float i when a > 1.2:
+                            image[x, y] = new Rgba32(0, 70, 100);
+                            break;
+                        case float i when a > 1.1 && a <= 1.2:
+                            image[x, y] = new Rgba32(0, 100, 150);
+                            break;
+                        case float i when a > 1.0 && a <= 1.1:
+                            image[x, y] = new Rgba32(225, 225, 175);
+                            break;
+                        default:
+                            image[x, y] = new Rgba32(60, 160, 100);
+                            break;
+                    }
 
                 }
             }
             image.Save(@"C:\Users\A0216\Desktop\test.png");
         }
-        public double OctavesNoise(double x,double y,double z, int Octaves, double Persistence)
+        public double OctavesNoise(double x, double y, double z, int Octaves, double Persistence)//オクターブ付ノイズ
         {
             double total = 0;
             double frequency = 1;
-            double amplitude = 0.5;
+            double amplitude = 10;
             double maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
             for (int i = 0; i < Octaves; i++)
             {
