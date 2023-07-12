@@ -15,59 +15,72 @@ namespace CreateMap
             int imagey = 1000;
             //画像を生成
             var image = new Image<Rgba32>(imagex, imagey);
-
-            float deep 
             Pconcat();
 
             //https://zenn.dev/baroqueengine/books/a19140f2d9fc1a/viewer/95c334
 
             double Persistence = 8;
 
-            int Octaves = 2;
+            double DeepSea = 0.35;
+            double Sea = 0.22;
+            double Beach = 0.04;
+
+            int Octaves = 4;
+
+            uint seed=1111;
 
             for (int y = 0; y < image.Width; y++)
             {
                 for (int x = 0; x < image.Height; x++)
                 {
-                    float a = (float)OctavesNoise((float)x / 100, (float)y / 100, 0, Octaves, Persistence);
-                    a += 2*(float)OctavesNoise((float)x / 100, (float)y / 100, 0, Octaves, 1/Persistence);
-                    a = a / 2;
-                    image[x, y] = new Rgba32(0, 0, a);
+                    float a = (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 3,1,2,seed);
+                    Console.WriteLine(a);
+                    a *= (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 2,20,0.5,seed);
+
+                    //a *= (float)OctavesNoise((float)x / 100, (float)y / 100, 0, Octaves, 1 / Persistence, 1);
+                    //a = a / 2;
+
                     //ノイズの濃淡によって色塗り
-                    switch (a)
+
+                    if (true)
                     {
-                        case float i when a > 1.2:
-                            image[x, y] = new Rgba32(0, 70, 100);
-                            break;
-                        case float i when a > 1.1 && a <= 1.2:
-                            image[x, y] = new Rgba32(0, 100, 150);
-                            break;
-                        case float i when a > 1.0 && a <= 1.1:
-                            image[x, y] = new Rgba32(225, 225, 175);
-                            break;
-                        default:
-                            image[x, y] = new Rgba32(60, 160, 100);
-                            break;
+                        switch (a)
+                        {
+                            case float i when a > DeepSea:
+                                image[x, y] = new Rgba32(0, 70, 100);
+                                break;
+                            case float i when a > Sea && a <= DeepSea:
+                                image[x, y] = new Rgba32(0, 100, 150);
+                                break;
+                            case float i when a > Sea - Beach && a <= Sea:
+                                image[x, y] = new Rgba32(225, 225, 175);
+                                break;
+                            default:
+                                image[x, y] = new Rgba32(60, 160, 100);
+                                break;
+                        }
+                    }else
+                    {
+                        image[x, y] = new Rgba32(0, 0, a);
                     }
 
                 }
             }
-            image.Save(@"C:\Users\A0216\Desktop\test.png");
+            image.Save(@"C:\Users\bacon\Desktop\test.png");
         }
-        public double OctavesNoise(double x, double y, double z, int Octaves, double Persistence)//オクターブ付ノイズ
+        public double OctavesNoise(double x, double y, double z, int Octaves, double Persistence,double Frequency,uint seed)//オクターブ付ノイズ
         {
             double total = 0;
-            double frequency = 1;
             double amplitude = 10;
             double maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
             for (int i = 0; i < Octaves; i++)
             {
-                total += CreateNoise(x * frequency, y * frequency, z * frequency) * amplitude;
+                total += CreateNoise(x * Frequency, y * Frequency, z * Frequency,seed) * amplitude;
 
                 maxValue += amplitude;
 
                 amplitude *= Persistence;
-                frequency *= 2;
+                Frequency *= 2;
             }
 
             return total / maxValue;
@@ -138,7 +151,7 @@ namespace CreateMap
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
 
-        public double CreateNoise(double x, double y, double z)
+        public double CreateNoise(double x, double y, double z,uint seed)
         {
             //与えられたxyzから格子点を求める
             //xyzを囲む整数座標の正方形
@@ -203,5 +216,16 @@ namespace CreateMap
         {
             return a + (b - a) * t;
         }
+
+        /*public double GetGrad(uint seed, double x, double y, double z)
+        {
+            Xorshift xorshift = new Xorshift();
+            double r = xorshift.Next(seed);
+            r=xorshift.Next(seed+(uint)y);
+            r = xorshift.Next(seed + (uint)z);
+            r = r % 10000;
+            return r / 5000 - 1.0f;
+        }*/
+
     }
 }
