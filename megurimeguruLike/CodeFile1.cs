@@ -11,8 +11,8 @@ namespace CreateMap
     {
         public void CreateImage()
         {
-            int imagex = 1000;
-            int imagey = 1000;
+            int imagex = 2000;
+            int imagey = 2000;
             //画像を生成
             var image = new Image<Rgba32>(imagex, imagey);
             Pconcat();
@@ -21,25 +21,23 @@ namespace CreateMap
 
             double Persistence = 8;
 
-            double DeepSea = 0.35;
-            double Sea = 0.22;
+            double DeepSea = 0.7;
+            double Sea = 0.6;
             double Beach = 0.04;
 
             int Octaves = 4;
 
-            uint seed=1111;
+            int seed = 1111;
 
             for (int y = 0; y < image.Width; y++)
             {
                 for (int x = 0; x < image.Height; x++)
                 {
-                    float a = (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 3,1,2,seed);
-                    Console.WriteLine(a);
-                    a *= (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 2,20,0.5,seed);
+                    float a = (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 3, 1, 2, seed);
 
-                    //a *= (float)OctavesNoise((float)x / 100, (float)y / 100, 0, Octaves, 1 / Persistence, 1);
-                    //a = a / 2;
-
+                    a *= (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 2, 20, 0.5, seed);
+                    a *= (float)OctavesNoise((float)(x + imagex) / 500, (float)(y + imagey) / 500, 0, 1, 1, 2, seed);
+                    a += (float)OctavesNoise((float)(x + imagex*1000) / 1000, (float)(y + imagey*1000) / 1000, 0, 1, 1, 2, seed);
                     //ノイズの濃淡によって色塗り
 
                     if (true)
@@ -59,23 +57,24 @@ namespace CreateMap
                                 image[x, y] = new Rgba32(60, 160, 100);
                                 break;
                         }
-                    }else
+                    }
+                    else
                     {
                         image[x, y] = new Rgba32(0, 0, a);
                     }
 
                 }
             }
-            image.Save(@"C:\Users\bacon\Desktop\test.png");
+            image.Save(@"C:\Users\A0216\Desktop\test.png");
         }
-        public double OctavesNoise(double x, double y, double z, int Octaves, double Persistence,double Frequency,uint seed)//オクターブ付ノイズ
+        public double OctavesNoise(double x, double y, double z, int Octaves, double Persistence, double Frequency, int seed)//オクターブ付ノイズ
         {
             double total = 0;
             double amplitude = 10;
             double maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
             for (int i = 0; i < Octaves; i++)
             {
-                total += CreateNoise(x * Frequency, y * Frequency, z * Frequency,seed) * amplitude;
+                total += CreateNoise(x * Frequency, y * Frequency, z * Frequency, seed) * amplitude;
 
                 maxValue += amplitude;
 
@@ -151,7 +150,7 @@ namespace CreateMap
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
 
-        public double CreateNoise(double x, double y, double z,uint seed)
+        public double CreateNoise(double x, double y, double z, int seed)
         {
             //与えられたxyzから格子点を求める
             //xyzを囲む整数座標の正方形
@@ -160,10 +159,18 @@ namespace CreateMap
             int yi = (int)y & 255;
             int zi = (int)z & 255;
 
-            //xyzの小数部取り出す
+            /* Console.WriteLine("xi: {0}", xi);
+             Console.WriteLine("yi: {0}", yi);
+             Console.WriteLine("zi: {0}", zi);
+            */
+            //xyz少数部を取り出す
             double xf = x - Math.Floor(x);
             double yf = y - Math.Floor(y);
             double zf = z - Math.Floor(z);
+
+            int xa = (int)Math.Floor(x);
+            int ya = (int)Math.Floor(y);
+            int za = (int)Math.Floor(z);
 
             //取り出した小数部を滑らかにする
             double u = SmootherStep(xf);
@@ -186,7 +193,7 @@ namespace CreateMap
             double g010 = grad(p010, xf, yf - 1, zf);
             double g001 = grad(p001, xf, yf, zf - 1);
             double g110 = grad(p110, xf - 1, yf - 1, zf);
-            double g011 = grad(seed, xf, yf - 1, zf - 1);
+            double g011 = grad(p011, xf, yf - 1, zf - 1);
             double g101 = grad(p101, xf - 1, yf, zf - 1);
             double g111 = grad(p111, xf - 1, yf - 1, zf - 1);
 
@@ -217,15 +224,21 @@ namespace CreateMap
             return a + (b - a) * t;
         }
 
-        /*public double GetGrad(uint seed, double x, double y, double z)
+        public double GetGrad(int seed, double x, double y, double z)
         {
             Xorshift xorshift = new Xorshift();
-            double r = xorshift.Next(seed);
-            r=xorshift.Next(seed+(uint)y);
-            r = xorshift.Next(seed + (uint)z);
-            r = r % 10000;
-            return r / 5000 - 1.0f;
-        }*/
-
+            int r = xorshift.Next((int)(x * 1000), (int)(y * 1000), (int)(z * 1000), seed + (int)x);
+            r = xorshift.Next((int)(x * 1000) + r, (int)(y * 1000) + r, (int)(z * 1000) + r, (int)y + r);
+            r = xorshift.Next((int)(x * 1000), (int)(y * 1000), (int)(z * 1000), r + (int)z) % 10000;
+            //Console.WriteLine(r);
+            if (r < 0)
+            {
+                return (double)r / (double)5000 + (double)1.0;
+            }
+            else
+            {
+                return (double)r / (double)5000 - (double)1.0;
+            }
+        }
     }
 }

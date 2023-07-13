@@ -1,11 +1,11 @@
 using Xunit.Abstractions;
 using Xunit;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 
 namespace TestProject1
 {
     public class UnitTest1
     {
-
         [Fact]
         public void Test1()
         {
@@ -19,6 +19,7 @@ namespace TestProject1
         {
             CreateMap.CreatePictures createMap = new CreateMap.CreatePictures();
             createMap.CreateImage();
+            Console.WriteLine("aaa");
         }
 
 
