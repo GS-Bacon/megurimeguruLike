@@ -186,7 +186,7 @@ namespace CreateMap
             double g010 = grad(p010, xf, yf - 1, zf);
             double g001 = grad(p001, xf, yf, zf - 1);
             double g110 = grad(p110, xf - 1, yf - 1, zf);
-            double g011 = grad(p011, xf, yf - 1, zf - 1);
+            double g011 = grad(seed, xf, yf - 1, zf - 1);
             double g101 = grad(p101, xf - 1, yf, zf - 1);
             double g111 = grad(p111, xf - 1, yf - 1, zf - 1);
 
