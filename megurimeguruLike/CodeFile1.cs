@@ -14,23 +14,33 @@ namespace CreateMap
             //画像を生成
             var image = new Image<Rgba32>(ImageX, ImageY);
 
-
+            //参考ブログ
             //https://zenn.dev/baroqueengine/books/a19140f2d9fc1a/viewer/95c334
 
+            //海抜設定
+            //後で構造体等にする
             double DeepSea = 0.7;
             double Sea = 0.6;
             double Beach = 0.04;
 
+            //ランダム生成ができるようになったらつかう
+            //現状使用しない
             int seed = 1111;
 
             for (int y = 0; y < image.Width; y++)
             {
                 for (int x = 0; x < image.Height; x++)
                 {
+                    //ベース地形
                     float Density = (float)CreateNoise.OctavesNoise((double)x / 100, (double)y / 100, 0, 3, 1, 2, seed);
 
+                    //海岸線の複雑性確保
                     Density *= (float)CreateNoise.OctavesNoise((double)x / 100, (double)y / 100, 0, 2, 20, 0.5, seed);
+
+                    //ずらしてパターン性を消す
                     Density *= (float)CreateNoise.OctavesNoise((double)(x + ImageX) / 500, (double)(y + ImageY) / 500, 0, 1, 1, 2, seed);
+
+                    //海と陸をダイナミックにする
                     Density += (float)CreateNoise.OctavesNoise((double)(x + ImageX * 1000) / 1000, (double)(y + ImageY * 1000) / 1000, 0, 1, 1, 2, seed);
                     //ノイズの濃淡によって色塗り
 
@@ -54,6 +64,7 @@ namespace CreateMap
                     }
                     else
                     {
+                        //一色で見る用
                         image[x, y] = new Rgba32(0, 0, Density);
                     }
 
