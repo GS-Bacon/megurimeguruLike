@@ -1,4 +1,5 @@
 using CreateMap;
+using test;
 
 namespace TestProject2
 {
@@ -16,9 +17,15 @@ namespace TestProject2
         public void CreateMapTest()
         {
             CreateNoise createPictures = new CreateNoise();
-            createPictures.CreateMapImage(200,200);
+            createPictures.CreateMapImage(500, 500);
 
         }
 
+        [TestMethod]
+        public void Ptest()
+        {
+            PlTest atest = new PlTest();
+            atest.B();
+        }
     }
 }

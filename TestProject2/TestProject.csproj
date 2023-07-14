@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Experimental Projects\Experimental Projects.csproj" />
     <ProjectReference Include="..\megurimeguruLike\megurimeguruLike.csproj" />
   </ItemGroup>
 

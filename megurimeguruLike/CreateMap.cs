@@ -9,7 +9,7 @@ namespace CreateMap
 {
     public class CreateNoise
     {
-        public void CreateMapImage(int ImageX, int ImageY, int StartX = 0, int StartY = 0,String SavePath="..\\test.png")
+        public void CreateMapImage(int ImageX = 200, int ImageY = 200, int StartX = 0, int StartY = 0, String SavePath = "..\\test.png")
         {
             //画像を生成
             var image = new Image<Rgba32>(ImageX, ImageY);
@@ -23,7 +23,7 @@ namespace CreateMap
             double sea = 0.6;
             double beach = 0.04;
 
-            float density;
+
 
             //ランダム生成ができるようになったらつかう
             //現状使用しない
@@ -33,46 +33,61 @@ namespace CreateMap
             {
                 for (int x = 0; x < image.Height; x++)
                 {
-                    //ベース地形
-                    density = (float)CreateNoise.s_octavesNoise((double)x / 100, (double)y / 100, 0, 3, 1, 2, seed);
+                    image[x, y] = s_coloringMapforNoise(x, y, seed);
 
-                    //海岸線の複雑性確保
-                    density *= (float)CreateNoise.s_octavesNoise((double)x / 100, (double)y / 100, 0, 2, 20, 0.5, seed);
+                }
 
-                    //ずらしてパターン性を消す
-                    density *= (float)CreateNoise.s_octavesNoise((double)(x + ImageX) / 500, (double)(y + ImageY) / 500, 0, 1, 1, 2, seed);
+            }
+            image.Save(SavePath);
+        }
 
-                    //海と陸をダイナミックにする
-                    density += (float)CreateNoise.s_octavesNoise((double)(x + ImageX * 1000) / 1000, (double)(y + ImageY * 1000) / 1000, 0, 1, 1, 2, seed);
-                    //ノイズの濃淡によって色塗り
+        static public Rgba32 s_coloringMapforNoise(int x, int y, int seed, bool mode = true)
+        {
 
-                    if (true)
-                    {
-                        switch (density)
-                        {
-                            case float i when density > deepSea:
-                                image[x, y] = new Rgba32(0, 70, 100);
-                                break;
-                            case float i when density > sea && density <= deepSea:
-                                image[x, y] = new Rgba32(0, 100, 150);
-                                break;
-                            case float i when density > sea - beach && density <= sea:
-                                image[x, y] = new Rgba32(225, 225, 175);
-                                break;
-                            default:
-                                image[x, y] = new Rgba32(60, 160, 100);
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        //一色で見る用
-                        image[x, y] = new Rgba32(0, 0, density);
-                    }
+            //ノイズの濃淡によって色塗り
+            TerraParameter terraParameter = new TerraParameter();
+            float density = s_getTerraNoise(x, y, seed);
+            if (mode)
+            {
+                switch (density)
+                {
+                    case float i when density > terraParameter.DeepSea:
+                        return new Rgba32(0, 70, 100);
+
+                    case float i when density > terraParameter.Sea && density <= terraParameter.DeepSea:
+                        return new Rgba32(0, 100, 150);
+
+                    case float i when density > terraParameter.Sea - terraParameter.Beach && density <= terraParameter.Sea:
+                        return new Rgba32(225, 225, 175);
+
+                    default:
+                        return new Rgba32(60, 160, 100);
 
                 }
             }
-            image.Save(SavePath);
+            else
+            {
+                //一色で見る用
+                return new Rgba32(0, 0, density);
+            }
+        }
+
+        static public float s_getTerraNoise(int x, int y, int seed)
+        {
+            float density;
+            //ベース地形
+            density = (float)CreateNoise.s_octavesNoise((double)x *0.01, (double)y *0.01, 0, 3, 1, 2, seed);
+
+            //海岸線の複雑性確保
+            density *= (float)CreateNoise.s_octavesNoise((double)x *0.01, (double)y *0.01, 0, 2, 20, 0.5, seed);
+
+            //ずらしてパターン性を消す
+            density *= (float)CreateNoise.s_octavesNoise((double)(x + 256) * 0.02, (double)(y + 256) *0.02, 0, 1, 1, 2, seed);
+
+            //海と陸をダイナミックにする
+            density += (float)CreateNoise.s_octavesNoise((double)(x +1000) *0.001, (double)(y + 1000) *0.001, 0, 1, 1, 2, seed);
+
+            return density;
         }
         static public double s_octavesNoise(double x, double y, double z, int Octaves, double Persistence, double frequency, int seed)//オクターブ付ノイズ
         {
