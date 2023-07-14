@@ -7,25 +7,19 @@ using System.Diagnostics;
 
 namespace CreateMap
 {
-    public class CreatePictures
+    public class CreateNoise
     {
-        public void CreateImage()
+        public void CreateImage(int ImageX, int ImageY, int StartX = 0, int StartY = 0,String SavePath="..\\test.png")
         {
-            int imagex = 2000;
-            int imagey = 2000;
             //画像を生成
-            var image = new Image<Rgba32>(imagex, imagey);
-            Pconcat();
+            var image = new Image<Rgba32>(ImageX, ImageY);
+
 
             //https://zenn.dev/baroqueengine/books/a19140f2d9fc1a/viewer/95c334
-
-            double Persistence = 8;
 
             double DeepSea = 0.7;
             double Sea = 0.6;
             double Beach = 0.04;
-
-            int Octaves = 4;
 
             int seed = 1111;
 
@@ -33,24 +27,24 @@ namespace CreateMap
             {
                 for (int x = 0; x < image.Height; x++)
                 {
-                    float a = (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 3, 1, 2, seed);
+                    float Density = (float)CreateNoise.OctavesNoise((double)x / 100, (double)y / 100, 0, 3, 1, 2, seed);
 
-                    a *= (float)OctavesNoise((float)x / 100, (float)y / 100, 0, 2, 20, 0.5, seed);
-                    a *= (float)OctavesNoise((float)(x + imagex) / 500, (float)(y + imagey) / 500, 0, 1, 1, 2, seed);
-                    a += (float)OctavesNoise((float)(x + imagex*1000) / 1000, (float)(y + imagey*1000) / 1000, 0, 1, 1, 2, seed);
+                    Density *= (float)CreateNoise.OctavesNoise((double)x / 100, (double)y / 100, 0, 2, 20, 0.5, seed);
+                    Density *= (float)CreateNoise.OctavesNoise((double)(x + ImageX) / 500, (double)(y + ImageY) / 500, 0, 1, 1, 2, seed);
+                    Density += (float)CreateNoise.OctavesNoise((double)(x + ImageX * 1000) / 1000, (double)(y + ImageY * 1000) / 1000, 0, 1, 1, 2, seed);
                     //ノイズの濃淡によって色塗り
 
                     if (true)
                     {
-                        switch (a)
+                        switch (Density)
                         {
-                            case float i when a > DeepSea:
+                            case float i when Density > DeepSea:
                                 image[x, y] = new Rgba32(0, 70, 100);
                                 break;
-                            case float i when a > Sea && a <= DeepSea:
+                            case float i when Density > Sea && Density <= DeepSea:
                                 image[x, y] = new Rgba32(0, 100, 150);
                                 break;
-                            case float i when a > Sea - Beach && a <= Sea:
+                            case float i when Density > Sea - Beach && Density <= Sea:
                                 image[x, y] = new Rgba32(225, 225, 175);
                                 break;
                             default:
@@ -60,21 +54,21 @@ namespace CreateMap
                     }
                     else
                     {
-                        image[x, y] = new Rgba32(0, 0, a);
+                        image[x, y] = new Rgba32(0, 0, Density);
                     }
 
                 }
             }
-            image.Save(@"C:\Users\A0216\Desktop\test.png");
+            image.Save(SavePath);
         }
-        public double OctavesNoise(double x, double y, double z, int Octaves, double Persistence, double Frequency, int seed)//オクターブ付ノイズ
+        static public double OctavesNoise(double x, double y, double z, int Octaves, double Persistence, double Frequency, int seed)//オクターブ付ノイズ
         {
             double total = 0;
             double amplitude = 10;
             double maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
             for (int i = 0; i < Octaves; i++)
             {
-                total += CreateNoise(x * Frequency, y * Frequency, z * Frequency, seed) * amplitude;
+                total += Noise(x * Frequency, y * Frequency, z * Frequency, seed) * amplitude;
 
                 maxValue += amplitude;
 
@@ -118,7 +112,7 @@ namespace CreateMap
             }
         }
 
-        public double grad(int idex, double x, double y, double z = 0)
+        static public double grad(int idex, double x, double y, double z = 0)
         {
             //格子点8つ分の固有ベクトルを求める
             //indexから最初の4ビットを取り出す
@@ -150,8 +144,9 @@ namespace CreateMap
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
 
-        public double CreateNoise(double x, double y, double z, int seed)
+        static public double Noise(double x, double y, double z, int seed)
         {
+            Pconcat();
             //与えられたxyzから格子点を求める
             //xyzを囲む整数座標の正方形
             //0~255までの範囲かつ負の範囲をとらない
@@ -209,36 +204,19 @@ namespace CreateMap
 
         }
 
-        public int inc(int num) //numに+1した場合に256を超えたら0に戻す
+        static public int inc(int num) //numに+1した場合に256を超えたら0に戻す
         {
             return (num + 1) % permutation.Length;
         }
 
-        public double SmootherStep(double x) //小数点部をなめらかにするらしい
+        static public double SmootherStep(double x) //小数点部をなめらかにするらしい
         {
             return x * x * x * (x * (x * 6 - 15) + 10);
         }
 
-        public double lerp(double a, double b, double t)
+        static public double lerp(double a, double b, double t)
         {
             return a + (b - a) * t;
-        }
-
-        public double GetGrad(int seed, double x, double y, double z)
-        {
-            Xorshift xorshift = new Xorshift();
-            int r = xorshift.Next((int)(x * 1000), (int)(y * 1000), (int)(z * 1000), seed + (int)x);
-            r = xorshift.Next((int)(x * 1000) + r, (int)(y * 1000) + r, (int)(z * 1000) + r, (int)y + r);
-            r = xorshift.Next((int)(x * 1000), (int)(y * 1000), (int)(z * 1000), r + (int)z) % 10000;
-            //Console.WriteLine(r);
-            if (r < 0)
-            {
-                return (double)r / (double)5000 + (double)1.0;
-            }
-            else
-            {
-                return (double)r / (double)5000 - (double)1.0;
-            }
         }
     }
 }
