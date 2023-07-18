@@ -4,6 +4,7 @@ using System.Windows;
 using SixLabors.ImageSharp.ColorSpaces;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace CreateMap
 {
@@ -74,18 +75,24 @@ namespace CreateMap
 
         static public float s_getTerraNoise(int x, int y, int seed)
         {
-            float density;
             //ベース地形
-            density = (float)CreateNoise.s_octavesNoise((double)x *0.01, (double)y *0.01, 0, 3, 1, 2, seed);
+            Task<float> baseDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 3, 1, 2, seed));
 
             //海岸線の複雑性確保
-            density *= (float)CreateNoise.s_octavesNoise((double)x *0.01, (double)y *0.01, 0, 2, 20, 0.5, seed);
+            Task<float> coastlineDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 2, 20, 0.5, seed));
 
             //ずらしてパターン性を消す
-            density *= (float)CreateNoise.s_octavesNoise((double)(x + 256) * 0.02, (double)(y + 256) *0.02, 0, 1, 1, 2, seed);
+            Task<float> shiftDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)(x + 256) * 0.02, (double)(y + 256) * 0.02, 0, 1, 1, 2, seed));
 
             //海と陸をダイナミックにする
-            density += (float)CreateNoise.s_octavesNoise((double)(x +1000) *0.001, (double)(y + 1000) *0.001, 0, 1, 1, 2, seed);
+            Task<float> dynamicDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)(x + 1000) * 0.001, (double)(y + 1000) * 0.001, 0, 1, 1, 2, seed));
+
+            Task[] tasks = new Task[] { baseDensity, coastlineDensity, shiftDensity, dynamicDensity };
+            Task.WaitAll(tasks);
+            float density = baseDensity.Result;
+            density *= coastlineDensity.Result;
+            density *= shiftDensity.Result;
+            density += dynamicDensity.Result;
 
             return density;
         }
