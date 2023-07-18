@@ -34,15 +34,15 @@ namespace CreateMap
             {
                 for (int x = 0; x < image.Height; x++)
                 {
-                    image[x, y] = s_coloringMapforNoise(x, y, seed);
-
+                    image[x, y] = s_coloringMapforNoise(x, y, seed, true);
                 }
 
             }
+
             image.Save(SavePath);
         }
 
-        static public Rgba32 s_coloringMapforNoise(int x, int y, int seed, bool mode = true)
+        public Rgba32 s_coloringMapforNoise(int x, int y, int seed, bool mode = true)
         {
 
             //ノイズの濃淡によって色塗り
@@ -73,44 +73,67 @@ namespace CreateMap
             }
         }
 
-        static public float s_getTerraNoise(int x, int y, int seed)
+        public float s_getTerraNoise(int x, int y, int seed)
         {
             //ベース地形
-            Task<float> baseDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 3, 1, 2, seed));
+            Task<float> baseDensity = Task<float>.Run(() =>
+            {
+                CreateNoise createNoise = new CreateNoise();
+                return (float)createNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 3, 1, 2, seed);
+            });
+
 
             //海岸線の複雑性確保
-            Task<float> coastlineDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 2, 20, 0.5, seed));
+            Task<float> coastlineDensity = Task<float>.Run(() =>
+            {
+                CreateNoise createNoise = new CreateNoise();
+                return (float)createNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 2, 20, 0.5, seed);
+            });
 
             //ずらしてパターン性を消す
-            Task<float> shiftDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)(x + 256) * 0.02, (double)(y + 256) * 0.02, 0, 1, 1, 2, seed));
-
+            Task<float> shiftDensity = Task<float>.Run(() =>
+            {
+                CreateNoise createNoise = new CreateNoise();
+                return (float)createNoise.s_octavesNoise((double)(x + 256) * 0.02, (double)(y + 256) * 0.02, 0, 1, 1, 2, seed);
+            });
             //海と陸をダイナミックにする
-            Task<float> dynamicDensity = Task<float>.Run(() => (float)CreateNoise.s_octavesNoise((double)(x + 1000) * 0.001, (double)(y + 1000) * 0.001, 0, 1, 1, 2, seed));
+            Task<float> dynamicDensity = Task<float>.Run(() =>
+            {
+                CreateNoise createNoise = new CreateNoise();
+                return (float)createNoise.s_octavesNoise((double)(x + 1000) * 0.001, (double)(y + 1000) * 0.001, 0, 1, 1, 2, seed);
+            });
 
             Task[] tasks = new Task[] { baseDensity, coastlineDensity, shiftDensity, dynamicDensity };
+
             Task.WaitAll(tasks);
-            float density = baseDensity.Result;
+            float density = 0;
+            density=baseDensity.Result;
             density *= coastlineDensity.Result;
             density *= shiftDensity.Result;
             density += dynamicDensity.Result;
 
             return density;
         }
-        static public double s_octavesNoise(double x, double y, double z, int Octaves, double Persistence, double frequency, int seed)//オクターブ付ノイズ
+
+        static Object lockobj = new Object();
+        public double s_octavesNoise(double x, double y, double z, int Octaves, double Persistence, double frequency, int seed)//オクターブ付ノイズ
         {
             double total = 0;
             double amplitude = 10;
             double maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
+            CreateNoise createNoise = new CreateNoise();
+
+
             for (int i = 0; i < Octaves; i++)
             {
-                total += s_noise(x * frequency, y * frequency, z * frequency, seed) * amplitude;
+                total += createNoise.s_noise(x * frequency, y * frequency, z * frequency, seed) * amplitude;
 
                 maxValue += amplitude;
 
                 amplitude *= Persistence;
                 frequency *= 2;
-            }
 
+            }
             return total / maxValue;
         }
 
@@ -136,18 +159,17 @@ namespace CreateMap
             222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
             };
 
-        private static int[] p;
-
-        public static void s_pconcat()
+        public int[] s_pconcat()
         {
-            p = new int[permutation.Length * 2];
+            int[] p = new int[permutation.Length * 2];
             for (int x = 0; x < 512; x++)
             {
                 p[x] = permutation[x % 256];
             }
+            return p;
         }
 
-        static public double s_grad(int idex, double x, double y, double z = 0)
+        public double s_grad(int idex, double x, double y, double z = 0)
         {
             //格子点8つ分の固有ベクトルを求める
             //indexから最初の4ビットを取り出す
@@ -179,9 +201,9 @@ namespace CreateMap
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
 
-        static public double s_noise(double x, double y, double z, int seed)
+        public double s_noise(double x, double y, double z, int seed)
         {
-            s_pconcat();
+            int[] p = s_pconcat();
             //与えられたxyzから格子点を求める
             //xyzを囲む整数座標の正方形
             //0~255までの範囲かつ負の範囲をとらない
@@ -239,17 +261,17 @@ namespace CreateMap
 
         }
 
-        static public int s_inc(int num) //numに+1した場合に256を超えたら0に戻す
+        public int s_inc(int num) //numに+1した場合に256を超えたら0に戻す
         {
             return (num + 1) % permutation.Length;
         }
 
-        static public double s_smootherStep(double x) //小数点部をなめらかにするらしい
+        public double s_smootherStep(double x) //小数点部をなめらかにするらしい
         {
             return x * x * x * (x * (x * 6 - 15) + 10);
         }
 
-        static public double s_lerp(double a, double b, double t)
+        public double s_lerp(double a, double b, double t)
         {
             return a + (b - a) * t;
         }
