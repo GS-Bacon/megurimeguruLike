@@ -42,12 +42,13 @@ namespace CreateMap
             image.Save(SavePath);
         }
 
-        public Rgba32 s_coloringMapforNoise(int x, int y, int seed, bool mode = true)
+        static public Rgba32 s_coloringMapforNoise(int x, int y, int seed, bool mode = true)
         {
 
             //ノイズの濃淡によって色塗り
+            CreateNoise createNoise = new CreateNoise();
             TerraParameter terraParameter = new TerraParameter();
-            float density = s_getTerraNoise(x, y, seed);
+            float density = createNoise.s_getTerraNoise(x, y, seed);
             if (mode)
             {
                 switch (density)
@@ -78,29 +79,29 @@ namespace CreateMap
             //ベース地形
             Task<float> baseDensity = Task<float>.Run(() =>
             {
-                CreateNoise createNoise = new CreateNoise();
-                return (float)createNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 3, 1, 2, seed);
+                CreateNoise createNoise1 = new CreateNoise();
+                return (float)createNoise1.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 3, 1, 2, seed);
             });
 
 
             //海岸線の複雑性確保
             Task<float> coastlineDensity = Task<float>.Run(() =>
             {
-                CreateNoise createNoise = new CreateNoise();
-                return (float)createNoise.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 2, 20, 0.5, seed);
+                CreateNoise createNoise2 = new CreateNoise();
+                return (float)createNoise2.s_octavesNoise((double)x * 0.01, (double)y * 0.01, 0, 2, 20, 0.5, seed);
             });
 
             //ずらしてパターン性を消す
             Task<float> shiftDensity = Task<float>.Run(() =>
             {
-                CreateNoise createNoise = new CreateNoise();
-                return (float)createNoise.s_octavesNoise((double)(x + 256) * 0.02, (double)(y + 256) * 0.02, 0, 1, 1, 2, seed);
+                CreateNoise createNoise3 = new CreateNoise();
+                return (float)createNoise3.s_octavesNoise((double)(x + 256) * 0.02, (double)(y + 256) * 0.02, 0, 1, 1, 2, seed);
             });
             //海と陸をダイナミックにする
             Task<float> dynamicDensity = Task<float>.Run(() =>
             {
-                CreateNoise createNoise = new CreateNoise();
-                return (float)createNoise.s_octavesNoise((double)(x + 1000) * 0.001, (double)(y + 1000) * 0.001, 0, 1, 1, 2, seed);
+                CreateNoise createNoise4 = new CreateNoise();
+                return (float)createNoise4.s_octavesNoise((double)(x + 1000) * 0.001, (double)(y + 1000) * 0.001, 0, 1, 1, 2, seed);
             });
 
             Task[] tasks = new Task[] { baseDensity, coastlineDensity, shiftDensity, dynamicDensity };
@@ -108,6 +109,7 @@ namespace CreateMap
             Task.WaitAll(tasks);
             float density = 0;
             density=baseDensity.Result;
+            Console.WriteLine(density);
             density *= coastlineDensity.Result;
             density *= shiftDensity.Result;
             density += dynamicDensity.Result;
