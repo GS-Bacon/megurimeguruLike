@@ -17,7 +17,7 @@ namespace TestProject2
         public void CreateMapTest()
         {
             CreateNoise createPictures = new CreateNoise();
-            createPictures.CreateMapImage(2000,2000);
+            createPictures.createMapImage(2000,2000);
 
         }
 
