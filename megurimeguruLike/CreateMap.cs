@@ -14,7 +14,6 @@ namespace CreateMap
         {
             //画像を生成
             var image = new Image<Rgba32>(ImageX, ImageY);
-
             //参考ブログ
             //https://zenn.dev/baroqueengine/books/a19140f2d9fc1a/viewer/95c334
 
@@ -40,7 +39,7 @@ namespace CreateMap
 
             //ノイズの濃淡によって色塗り
             CreateNoise createNoise = new CreateNoise();
-            TerraParameter terraParameter = new TerraParameter();
+            TerracollaringParameter terraParameter = new TerracollaringParameter();
             float density = createNoise.getTerraNoise(x, y, seed);
             if (mode)
             {
