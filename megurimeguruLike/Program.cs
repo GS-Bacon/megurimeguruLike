@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using megurimeguruLike;
 
 namespace MazeGame
 {
     public class Program
     {
-        static Pxy NowPxy =new Pxy();
+        static Pxy NowPxy = new Pxy();
 
         public char[][] Map = new char[][]
         {
@@ -44,9 +45,9 @@ namespace MazeGame
         static Pxy GetP()
         {
             Pxy pxy = new Pxy();
-            for(int i = 0; i < ViewMap.Length;i++)
+            for (int i = 0; i < ViewMap.Length; i++)
             {
-                for(int j = 0; j< ViewMap[i].Length;j++)
+                for (int j = 0; j < ViewMap[i].Length; j++)
                 {
                     if (ViewMap[i][j] == 'P')
                     {
@@ -63,17 +64,17 @@ namespace MazeGame
             switch (key)
             {
                 case "w":
-                    if (NowPxy.x - 1 >= 0 && Map[NowPxy.x - 1][NowPxy.y]!='#')
+                    if (NowPxy.x - 1 >= 0 && Map[NowPxy.x - 1][NowPxy.y] != '#')
                     {
                         ViewMap[NowPxy.x][NowPxy.y] = Map[NowPxy.x][NowPxy.y];
                         ViewMap[NowPxy.x - 1][NowPxy.y] = 'P';
                     }
                     break;
                 case "a":
-                    if (NowPxy.y - 1 >= 0 && Map[NowPxy.x][NowPxy.y-1] != '#')
+                    if (NowPxy.y - 1 >= 0 && Map[NowPxy.x][NowPxy.y - 1] != '#')
                     {
                         ViewMap[NowPxy.x][NowPxy.y] = Map[NowPxy.x][NowPxy.y];
-                        ViewMap[NowPxy.x][NowPxy.y-1] = 'P';
+                        ViewMap[NowPxy.x][NowPxy.y - 1] = 'P';
                     }
                     break;
                 case "s":
@@ -84,10 +85,10 @@ namespace MazeGame
                     }
                     break;
                 case "d":
-                    if (NowPxy.y + 1 < Map.Length && Map[NowPxy.x][NowPxy.y+1] != '#')
+                    if (NowPxy.y + 1 < Map.Length && Map[NowPxy.x][NowPxy.y + 1] != '#')
                     {
                         ViewMap[NowPxy.x][NowPxy.y] = Map[NowPxy.x][NowPxy.y];
-                        ViewMap[NowPxy.x][NowPxy.y+1] = 'P';
+                        ViewMap[NowPxy.x][NowPxy.y + 1] = 'P';
                     }
                     break;
             }
@@ -96,6 +97,11 @@ namespace MazeGame
 
         static void Main()
         {
+            getTerraInfo gti = new getTerraInfo();
+            //gti.TerraNoise = 0.1;
+            //MapParameter a = gti.GetRangeforNoise(gti.TerraMapPrameters, 0.1);
+            //Console.WriteLine(a.Name);
+            /*
             Program program = new Program();
             program.BakeMap();
             ViewMap[3][1] = 'P';
@@ -117,11 +123,13 @@ namespace MazeGame
                     ViewMap[i][j] = Map[i][j];
                 }
             }
+        }*/
         }
-    }
-        class Pxy 
+        class Pxy
         {
             public int x;
             public int y;
         }
+
+    }
 }

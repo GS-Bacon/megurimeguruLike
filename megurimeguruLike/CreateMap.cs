@@ -5,11 +5,14 @@ using SixLabors.ImageSharp.ColorSpaces;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using megurimeguruLike;
 
 namespace CreateMap
 {
     public class CreateNoise
     {
+        getTerraInfo getTerraInfo = new getTerraInfo();
+
         public void createMapImage(int ImageX = 200, int ImageY = 200, int StartX = 0, int StartY = 0, String SavePath = "..\\test.png")
         {
             //画像を生成
@@ -39,25 +42,11 @@ namespace CreateMap
 
             //ノイズの濃淡によって色塗り
             CreateNoise createNoise = new CreateNoise();
-            TerracollaringParameter terraParameter = new TerracollaringParameter();
             float density = createNoise.getTerraNoise(x, y, seed);
+            MapParameter Terrainfo = getTerraInfo.GetRangeforNoise(getTerraInfo.TerraMapPrameter, density);
             if (mode)
             {
-                switch (density)
-                {
-                    case float i when density > terraParameter.DeepSea:
-                        return new Rgba32(0, 70, 100);
-
-                    case float i when density > terraParameter.Sea && density <= terraParameter.DeepSea:
-                        return new Rgba32(0, 100, 150);
-
-                    case float i when density > terraParameter.Sea - terraParameter.Beach && density <= terraParameter.Sea:
-                        return new Rgba32(225, 225, 175);
-
-                    default:
-                        return new Rgba32(60, 160, 100);
-
-                }
+                return Terrainfo.ImageCollor;
             }
             else
             {
@@ -77,13 +66,13 @@ namespace CreateMap
 
             //海岸線の複雑性確保
             density *= (float)createNoise.octavesNoise((double)x / 100, (double)y / 100, 0, 2, 20, 0.5, seed);
-            
+
             //ずらしてパターン性を消す
             density *= (float)createNoise.octavesNoise((double)(x + 256) / 500, (double)(y + 256) / 500, 0, 1, 1, 2, seed);
 
             //海と陸をダイナミックにする
             density += (float)createNoise.octavesNoise((double)(x + 1000 * 1000) / 1000, (double)(y + 1000 * 1000) / 1000, 0, 1, 1, 2, seed);
-
+            
             return density;
         }
         public double octavesNoise(double x, double y, double z, int Octaves, double Persistence, double frequency, int seed)//オクターブ付ノイズ

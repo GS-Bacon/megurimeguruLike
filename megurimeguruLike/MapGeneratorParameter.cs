@@ -8,68 +8,142 @@ namespace CreateMap
         public int Octaves { get; set; }
         public int Seed { get; set; }
     }
-    public struct TerracollaringParameter
-    {
-        public double DeepSea { get; set; } = 0.7;
-        public double Sea { get; set; } = 0.6;
-        public double Beach { get; set; } = 0.04;
 
-        public TerracollaringParameter() { }
-    }
-
-    public struct TerraInfo
+    public struct MapInfo
     {
         public int Hight { get; set; } //地形高さ
         public BiomeMapData BiomeData { get; set; } //バイオーム
         public double Temperature { get; set; } //地形温度
-        public TerraMapData TerraData { get; set; } //地形
-        public ClimateMapParameter ClimateData { get; set; }//気候帯
+        public MapParameter TerraData { get; set; } //地形
+        public MapParameter ClimateData { get; set; }//気候帯
     }
 
-    public struct ClimateMapParameter //ClimateNoise(0~1)から気候区分を設定
+    public struct ClimateMapData //ClimateNoise(0~1)から気候区分を設定
     {
-        public MapParameterValue Polar { get; set; } //寒帯気候
-        public MapParameterValue Subarctic { get; set; } //亜寒帯気候
+        public MapParameter Polar { get; set; } //寒帯気候
+        public MapParameter Subarctic { get; set; } //亜寒帯気候
     }
 
     public static class TerraMapData
     {
-        public static MapParameterValue DeepSea
+        public static MapParameter DeepSea
         {
-            private set { }
+            set { }
             get
             {
-                DeepSea.ParameterDensity = 0.8;
-                DeepSea.ID = 1;
-                DeepSea.Name = "DeepSea";
-                DeepSea.ImageCollor = new Rgba32(0, 70, 100);
-                return DeepSea;
+                MapParameter deepSea=new MapParameter();
+                deepSea.ParameterDensity = 0.4;
+                deepSea.ID = 1;
+                deepSea.Name = "DeepSea";
+                deepSea.ImageCollor = new Rgba32(0, 70, 100);
+                return deepSea;
+            }
+        }
+        public static MapParameter Sea
+        {
+            set { }
+            get
+            {
+                MapParameter sea=new MapParameter();
+                sea.ParameterDensity = 0.5;
+                sea.ID = 2;
+                sea.Name = "Sea";
+                sea.ImageCollor = new Rgba32(0, 100, 150);
+                return sea;
+            }
+        }
+        public static MapParameter FordSea
+        {
+            set { }
+            get
+            {
+                MapParameter fordSea=new MapParameter();
+                fordSea.ParameterDensity = 0.6;
+                fordSea.ID = 3;
+                fordSea.Name = "FordSea";
+                fordSea.ImageCollor = new Rgba32(90, 170, 250);
+                return fordSea;
+            }
+        }
+        public static MapParameter Beach
+        {
+            set
+            {
+            }
+            get
+            {
+                MapParameter beach=new MapParameter();
+                beach.ParameterDensity = 0.7;
+                beach.ID = 4;
+                beach.Name = "Beach";
+                beach.ImageCollor = new Rgba32(255, 255, 180);
+                return beach;
+            }
+        }
+        public static MapParameter Plane
+        {
+            set
+            {
+            }
+            get
+            {
+                MapParameter plane=new MapParameter();
+                plane.ParameterDensity = 0.75;
+                plane.ID = 5;
+                plane.Name = "Plane";
+                plane.ImageCollor = new Rgba32(60, 160, 100);
+                return plane;
+            }
+        }
+        public static MapParameter Plateau
+        {
+            set { }
+            get
+            {
+                MapParameter plateau=new MapParameter();
+                plateau.ParameterDensity = 0.9;
+                plateau.ID = 6;
+                plateau.Name = "Plateau";
+                plateau.ImageCollor = new Rgba32(120, 160, 140);
+                return plateau;
+            }
+        }
+        public static MapParameter Mountain
+        {
+            set { }
+            get
+            {
+                MapParameter mountain=new MapParameter();
+                mountain.ParameterDensity = 0.95;
+                mountain.ID = 7;
+                mountain.Name = "Mountain";
+                mountain.ImageCollor = new Rgba32(110, 130, 120);
+                return mountain;
             }
         }
 
-        public static MapParameterValue Sea
-        {
-            private set { }
-            get {
-                Sea.ParameterDensity = 0.7;
-                DeepSea.ID = 1;
-                DeepSea.Name = "Sea";
-                DeepSea.ImageCollor = new Rgba32(0, 100, 150);
-                return Sea;
-                    }
-        }
-        public static MapParameterValue FordSea { get; set; }
-        public static MapParameterValue Beach { get; set; }
-        public static MapParameterValue Plane { get; set; }
-        public static MapParameterValue Plateau { get; set; }
-        public static MapParameterValue Mountain { get; set; }
-
     }
 
-    public struct BiomeMapData
+    public class BiomeMapData
     { }
 
-    public class MapParameterValue
+    public class VoidMapData
+    {
+        public static MapParameter TheVoid
+        {
+            set { }
+            get
+            {
+                MapParameter theVoid=new MapParameter();
+                theVoid.ParameterDensity = 0;
+                theVoid.ID = 0;
+                theVoid.Name = "TheVoid";
+                theVoid.ImageCollor = new Rgba32(255, 255, 255);
+                return theVoid;
+            }
+        }
+    }
+    public class MapParameter
     {
         public double ParameterDensity { get; set; }
         public int ID { get; set; }

@@ -1,4 +1,5 @@
 using CreateMap;
+using megurimeguruLike;
 using test;
 
 namespace TestProject2
@@ -17,15 +18,18 @@ namespace TestProject2
         public void CreateMapTest()
         {
             CreateNoise createPictures = new CreateNoise();
-            createPictures.createMapImage(2000,2000);
+            createPictures.createMapImage(1000, 1000);
 
         }
 
         [TestMethod]
-        public void Ptest()
+        public void Test2()
         {
-            PlTest atest = new PlTest();
-            atest.B();
+            getTerraInfo gti = new getTerraInfo();
+            //gti.TerraNoise = 0.1;
+            MapParameter a = gti.GetRangeforNoise(gti.TerraMapPrameter, 0.1);
+            Console.WriteLine(a.Name);
+
         }
     }
 }
