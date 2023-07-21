@@ -16,7 +16,7 @@ namespace megurimeguruLike
         public getTerraInfo()
         {
             this.TerraMapPrameter = new MapParameter[]
-        {
+            {
             TerraMapData.DeepSea,
             TerraMapData.Sea,
             TerraMapData.FordSea,
@@ -24,16 +24,17 @@ namespace megurimeguruLike
             TerraMapData.Plane,
             TerraMapData.Plateau,
             TerraMapData.Mountain
-        };
+            };
+
             this.TheVoid = VoidMapData.TheVoid;
         }
 
 
         public MapInfo Terrainfo(double TerraNoise) //バイオームノイズと地形ノイズから地形情報を決定
         {
-            MapInfo terraInfo=new MapInfo();
-            terraInfo.TerraData=GetRangeforNoise(TerraMapPrameter, TerraNoise);
-            terraInfo.Hight = (int)terraInfo.TerraData.ParameterDensity*255;
+            MapInfo terraInfo = new MapInfo();
+            terraInfo.TerraData = GetRangeforNoise(TerraMapPrameter, TerraNoise);
+            terraInfo.Hight = (int)terraInfo.TerraData.ParameterDensity * 255;
 
             return terraInfo;
         }
@@ -57,7 +58,7 @@ namespace megurimeguruLike
             {
                 var param = MapParameters[i];
 
-                if (Noise >=param.ParameterDensity)
+                if (Noise >= param.ParameterDensity)
                 {
                     if (mapParameter.ParameterDensity < param.ParameterDensity)//PrameterDensity以下はその地形or気候
                     {
