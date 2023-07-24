@@ -72,7 +72,13 @@ namespace megurimeguruLike.MapParameter
             }
         }
 
-        public MapData Arid { set { } get { } }
+        public MapData Arid { set { } get {
+            MapData arid = new MapData();
+                arid.ParameterDensity = 0.2;
+                arid.ID = 4;
+                arid.Name = "Arid";
+                return arid;
+            } }
     }
 
     public class BiomeMapData
