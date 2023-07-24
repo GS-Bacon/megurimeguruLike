@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using megurimeguruLike;
+using megurimeguruLike.MapParameter;
 
 namespace CreateMap
 {
@@ -29,7 +30,7 @@ namespace CreateMap
                 Parallel.For(0, image.Height, x =>
                  {
                      CreateNoise createNoise = new CreateNoise();
-                     image[x, y] = createNoise.coloringMapforNoise(x, y, seed, true);
+                     image[x, y] = createNoise.coloringMapforNoise(x+StartX, y+StartY, seed, true);
                  });
 
             }
@@ -43,7 +44,7 @@ namespace CreateMap
             //ノイズの濃淡によって色塗り
             CreateNoise createNoise = new CreateNoise();
             float density = createNoise.getTerraNoise(x, y, seed);
-            MapParameter Terrainfo = getTerraInfo.GetRangeforNoise(getTerraInfo.TerraMapPrameter, density);
+            MapData Terrainfo = getTerraInfo.GetRangeforNoise(getTerraInfo.TerraMapPrameter, density);
             if (mode)
             {
                 return Terrainfo.ImageCollor;
