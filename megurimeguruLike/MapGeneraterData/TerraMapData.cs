@@ -9,8 +9,16 @@ namespace megurimeguruLike.MapParameter
 {
     public static class TerraMapData
     {
+        ///<summary>
+        /// 各気候ごとのパラメータ値を設定する
+        /// TerraMapDataクラスの中に格納しているがなんかもっといい方法がある気もする
+        /// 
+        /// Set parameters for each climate
+        /// stored in the TrerraMapDataClass,but I'm sure there's a better way
+        ///</summary>
         public static MapData DeepSea
         {
+
             set { }
             get
             {

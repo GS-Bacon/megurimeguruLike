@@ -15,6 +15,7 @@ namespace megurimeguruLike
 
         public getTerraInfo()
         {
+            //地形情報として使うMapDataを設定
             this.TerraMapPrameter = new MapData[]
             {
             TerraMapData.DeepSea,
@@ -50,7 +51,11 @@ namespace megurimeguruLike
         }*/
 
         public MapData GetRangeforNoise(MapData[] MapDatas, double Noise)
-        //与えられたNoise(0~1を取る)がMapData[]配列のMapPrameter.PrameterDensityのどこの範囲に入るかを決定する
+        ///<summary>
+        ///与えられたNoise(0~1を取る)がMapData[]配列のMapPrameter.PrameterDensityのどこの範囲に入るかを決定する
+        ///</summary>
+        ///<param name="MapDatas">使用するマップパラメータ群</param>
+        ///<param name="Noise">その場所のノイズの数値</param>
         {
 
             MapData mapParameter = TheVoid;
@@ -67,7 +72,7 @@ namespace megurimeguruLike
                     }
                 }
             }
-            mapParameter=( mapParameter ==TheVoid)?minParameter : mapParameter;//一番低い部分を一番低いパラメータで埋める
+            mapParameter = (mapParameter == TheVoid) ? minParameter : mapParameter;//一番低い部分を一番低いパラメータで埋める
             return mapParameter;
         }
     }
